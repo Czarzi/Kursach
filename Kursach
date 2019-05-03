@@ -1,0 +1,107 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+public class Program
+{
+    public static void Main()
+    {
+        //string infix = "52-12*2/";
+        Console.WriteLine("Привет Юзер, это  программа для преобразования инфиксной записи в постфиксную, или Обратно-Польская запись.");
+        while (true) 
+        {
+            Console.WriteLine("Введите выражение: ");
+            string infix = Console.ReadLine();
+            String postfix = InfixToPostfix(infix);
+            System.Console.WriteLine("Инфиксная запись  :\t" + infix);
+            System.Console.WriteLine("Постфиксная запись :\t" + postfix);
+        }
+    }
+
+    public static string InfixToPostfix(string exp)
+    {
+        // инициализация пустой строки для результата
+        String result = String.Empty;
+
+        // инициализация пустого стека
+        Stack<char> stack = new Stack<char>();
+
+        for (int i = 0; i < exp.Length; ++i)
+        {
+            char c = exp[i];
+
+            // Если отсканированный символ является операндом, добавить его в вывод.
+            if (Char.IsLetterOrDigit(c))
+                result += c;
+
+            // Если отсканированный символ является ' ( ' , проталкиваем его в стек.
+            else if (c == '(')
+                stack.Push(c);
+
+            // Если отсканированный символ является ')', возвращаем элементы из стека и выводим до тех пор, пока не встретится' ('.
+            else if (c == ')')
+            {
+                while (stack.Count != 0 && stack.Peek() != '(')
+                    result += stack.Pop();
+
+                if (stack.Count != 0 && stack.Peek() != '(')
+                    return "Недопустимое выражение";            
+                else
+                    stack.Pop();
+            }
+            else // обнаружен оператор
+            {
+                while (stack.Count != 0 && Prec(c) <= Prec(stack.Peek()))
+                    result += stack.Pop();
+                stack.Push(c);
+            }
+
+        }
+
+        // извлекаем все операторы из стека
+        while (stack.Count != 0)
+            result += stack.Pop();
+
+        return result;
+    }
+
+    // Функция для возврата приоритета заданного оператора
+    public static int Prec(char ch)
+    {
+        switch (ch)
+        {
+            case '+':
+            case '-':
+                return 1;
+
+            case '*':
+            case '/':
+            case '%':
+            case '&':
+                return 2;
+            case '^':
+                return 3;
+        }
+        return -1;
+    }
+    // Не реализованное решение ОПЗ
+    public static int applyOp(char op, int b, int a)
+    {
+        switch (op)
+        {
+            case '+':
+                return a + b;
+            case '-':
+                return a - b;
+            case '*':
+                return a * b;
+            case '/':
+                if (b == 0)
+                {
+                    throw new System.NotSupportedException("Нельзя делить на ноль");
+                }
+                return a / b;
+        }
+        return 0;
+    }
+}
